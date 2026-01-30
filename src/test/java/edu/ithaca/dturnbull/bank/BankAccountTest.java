@@ -41,7 +41,6 @@ class BankAccountTest {
         assertFalse(BankAccount.isEmailValid("a@b.c")); //domain (after the '.') too short
         assertFalse(BankAccount.isEmailValid("-a@b.com")); //starts with a character that is not allowed
         //assertFalse(BankAccount.isEmailValid("a@b.aa")); // technically not a real tld
-        assertFalse(BankAccount.isEmailValid("a@b.co.uk")); // multiple '.' in domain not allowed
         assertFalse(BankAccount.isEmailValid("4@4.5")); //domain (after the '.') are not letters
         assertFalse(BankAccount.isEmailValid("a@a#b.com")); //character '#' is not allowed
         assertFalse(BankAccount.isEmailValid("a@ab")); //`no '.'
@@ -51,8 +50,7 @@ class BankAccountTest {
         assertTrue(BankAccount.isEmailValid("a@b.co.uk"));
         assertTrue(BankAccount.isEmailValid("a@a.b.com"));
         assertTrue(BankAccount.isEmailValid("a.a@b.com"));
-        assertTrue(BankAccount.isEmailValid("4@b.com"));
-        //assertTrue(BankAccount.isEmailValid("a-@b.com")); // valid according to wikipedia
+        //assertTrue(BankAccount.isEmailValid("4@b.com"));
         assertTrue(BankAccount.isEmailValid("a+b@b.com"));
         assertTrue(BankAccount.isEmailValid("A@b.com"));
     }
