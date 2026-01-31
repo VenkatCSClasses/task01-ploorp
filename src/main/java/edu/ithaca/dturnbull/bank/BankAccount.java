@@ -52,39 +52,43 @@ public static boolean isEmailValid(String email) {
 
     if (domain.isEmpty()) return false;
 
+    if (local.length() > 64) return false;
 
+    if (local.startsWith(".") || local.endsWith(".")) return false;
 
-    char first = local.charAt(0);
-    if (!Character.isLetter(first)) return false;
-    
+    if (local.startsWith("-") || local.endsWith("-")) return false;
+
+    String allowedLocal = "+._-!%#&*";
+
     for (char c : local.toCharArray()) {
-        if (!Character.isLetterOrDigit(c) && "+._-".indexOf(c) == -1) {
+        if (!Character.isLetterOrDigit(c) && allowedLocal.indexOf(c) == -1) {
             return false;
         }
     }
 
-    if (local.startsWith(".") || local.endsWith(".")) return false;
-
-    if (email.contains(".@")) return false;
-
- 
-    
-
     if (!domain.contains(".")) return false;
+
     if (domain.startsWith(".") || domain.endsWith(".")) return false;
+
+    if (domain.length() > 255) return false;
 
     String[] labels = domain.split("\\.");
     for (String label : labels) {
         if (label.isEmpty()) return false;
 
         for (char c : label.toCharArray()) {
-            if (!Character.isLetter(c)) return false;
+            if (!Character.isLetterOrDigit(c) && c != '-') return false;
         }
+        if (label.startsWith("-") || label.endsWith("-")) return false;
     }
 
-  
     String tld = labels[labels.length - 1];
-    if (tld.length() < 2) return false;
+
+    if (tld.length() < 2 || tld.length() > 13) return false;
+
+    for (char c : tld.toCharArray()) {
+        if (!Character.isLetter(c)) return false;
+    }
 
     return true;
 }
