@@ -25,34 +25,84 @@ class BankAccountTest {
         assertThrows(InsufficientFundsException.class, () -> bankAccount.withdraw(300));
     }
 
+    // note: this doesn't cover everything in the real standard, but it's close enough
     @Test
     void isEmailValidTest(){
-        assertTrue(BankAccount.isEmailValid( "a@b.com"));   // valid email address
-        assertFalse( BankAccount.isEmailValid(""));         // empty string
+        // empty string
+        assertFalse( BankAccount.isEmailValid(""));
 
-        assertFalse(BankAccount.isEmailValid("a.@b.com")); //'@'and '.' are next to eachother
-        assertFalse(BankAccount.isEmailValid(".a@b.com")); //starts with '.'
-        assertFalse(BankAccount.isEmailValid("a..a@b.com")); //two '.' in a row
-        assertFalse(BankAccount.isEmailValid("ab.com")); //no '@' symbol
-        assertFalse(BankAccount.isEmailValid("a@b@b.com")); //two '@' symbols
-        assertFalse(BankAccount.isEmailValid("a")); //no '@' symbol, or domain
-        assertFalse(BankAccount.isEmailValid("@b.com")); //starts with '@' symbol
-        assertFalse(BankAccount.isEmailValid("a@")); //ends with '@' symbol
-        assertFalse(BankAccount.isEmailValid("a@b.c")); //domain (after the '.') too short
-        assertFalse(BankAccount.isEmailValid("-a@b.com")); //starts with a character that is not allowed
-        //assertFalse(BankAccount.isEmailValid("a@b.aa")); // technically not a real tld
-        assertFalse(BankAccount.isEmailValid("4@4.5")); //domain (after the '.') are not letters
-        assertFalse(BankAccount.isEmailValid("a@a#b.com")); //character '#' is not allowed
-        assertFalse(BankAccount.isEmailValid("a@ab")); //`no '.'
-        assertFalse(BankAccount.isEmailValid("a@a..com")); //two '.' in a row
+        // total length
+        assertFalse(BankAccount.isEmailValid("a@b.c")); // too short to be valid
+        assertTrue(BankAccount.isEmailValid("a@b.co")); // shortest possible valid email
 
-        //all valid emails addresses
-        assertTrue(BankAccount.isEmailValid("a@b.co.uk"));
-        assertTrue(BankAccount.isEmailValid("a@a.b.com"));
-        assertTrue(BankAccount.isEmailValid("a.a@b.com"));
-        //assertTrue(BankAccount.isEmailValid("4@b.com"));
-        assertTrue(BankAccount.isEmailValid("a+b@b.com"));
-        assertTrue(BankAccount.isEmailValid("A@b.com"));
+        // missing sections
+        assertFalse(BankAccount.isEmailValid("@bb.com")); // missing local part
+        assertFalse(BankAccount.isEmailValid("aa@.com")); // missing domain
+        assertFalse(BankAccount.isEmailValid("aa@bb")); // missing tld
+        
+        // length of local part
+        assertTrue(BankAccount.isEmailValid("a@b.com")); // 1 character
+        assertFalse(BankAccount.isEmailValid("a".repeat(65) + "@b.com")); // 65 characters
+        assertTrue(BankAccount.isEmailValid("a".repeat(64) + "@b.com")); // 64 characters
+
+        // length of domain
+        assertTrue(BankAccount.isEmailValid("aa@bb.com")); // 2 characters
+        assertFalse(BankAccount.isEmailValid("aa@" + "a".repeat(252) + ".com")); // 256 characters
+        assertTrue(BankAccount.isEmailValid("aa@" + "a".repeat(251) + ".com")); // 255 characters
+
+        // length of tld
+        assertFalse(BankAccount.isEmailValid("aa@b.c")); // 1 character
+        assertTrue(BankAccount.isEmailValid("aa@bb.international")); // longest tld (13 characters)
+        assertFalse(BankAccount.isEmailValid("aa@bb.internationala")); // 14 characters
+        
+        // domain/tld segments
+        assertTrue(BankAccount.isEmailValid("aa@bb.co.uk")); // 2 part tld
+        assertTrue(BankAccount.isEmailValid("aa@bb.bb.bb.bb.bb.com")); // subdomains
+
+        // special characters local part
+        assertFalse(BankAccount.isEmailValid("a\"()a@b.com")); // quotes and parentheses
+        assertFalse(BankAccount.isEmailValid("a a@b.com")); // spaces
+        assertTrue(BankAccount.isEmailValid("#+!%_&*@b.com")); // valid characters
+
+        // special characters domain part
+        assertFalse(BankAccount.isEmailValid("aa@b#b.com")); // invalid character in domain
+        assertFalse(BankAccount.isEmailValid("aa@bb.#4")); // invalid character in tld
+        assertTrue(BankAccount.isEmailValid("aa@a-b.com")); // valid hyphen in domain
+
+        // numbers local and domain parts
+        assertTrue(BankAccount.isEmailValid("4@bb.com")); // numbers in local part
+        assertTrue(BankAccount.isEmailValid("aa@4.com")); // numbers in domain
+        assertFalse(BankAccount.isEmailValid("aa@bb.44")); // numbers in tld
+
+        // hyphen position local part
+        assertFalse(BankAccount.isEmailValid("-aa@bb.com")); // starts with hyphen
+        assertTrue(BankAccount.isEmailValid("a-a@bb.com")); // hyphen in middle
+        assertFalse(BankAccount.isEmailValid("aa-@bb.com")); // ends with hyphen
+
+        // hyphen position domain part
+        assertFalse(BankAccount.isEmailValid("aa@-bb.com")); // starts with hyphen
+        assertTrue(BankAccount.isEmailValid("aa@b-b.com")); // hyphen in middle
+        assertFalse(BankAccount.isEmailValid("aa@bb-.com")); // ends with hyphen
+
+        // dot position local and domain parts
+        assertFalse(BankAccount.isEmailValid(".aa@bb.com")); // local starts with dot
+        assertFalse(BankAccount.isEmailValid("aa@.bb.com")); // domain starts with dot
+        assertFalse(BankAccount.isEmailValid("aa.@bb.com")); // local ends with dot
+        assertFalse(BankAccount.isEmailValid("aa@bb.com.")); // domain ends with dot
+        assertTrue(BankAccount.isEmailValid("a.a@bb.com")); // dot in middle of local part
+
+        // double dot local and domain parts
+        assertFalse(BankAccount.isEmailValid("a..a@bb.com")); // double dot in local part
+        assertFalse(BankAccount.isEmailValid("aa@bb..com")); // double dot in domain
+
+        // number of '@' symbols
+        assertFalse(BankAccount.isEmailValid("a@a@b.com")); // extra @ symbol
+        assertFalse(BankAccount.isEmailValid("aa.bb.com")); // missing @ symbol
+
+        // capitalization (i think caps should be allowed, although the domain is case insensitive)
+        assertTrue(BankAccount.isEmailValid("Aa@bb.com")); // capital letter in local part
+        assertTrue(BankAccount.isEmailValid("aa@Bb.com")); // capital letter in domain part
+        assertTrue(BankAccount.isEmailValid("AA@BB.COM")); // all caps
     }
 
     @Test
