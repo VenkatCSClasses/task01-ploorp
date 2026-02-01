@@ -18,11 +18,30 @@ class BankAccountTest {
 
     @Test
     void withdrawTest() throws InsufficientFundsException{
-        BankAccount bankAccount = new BankAccount("a@b.com", 200);
-        bankAccount.withdraw(100);
+        BankAccount acc = new BankAccount("a@b.com", 200);
 
-        assertEquals(100, bankAccount.getBalance(), 0.001);
-        assertThrows(InsufficientFundsException.class, () -> bankAccount.withdraw(300));
+        // withdraw money
+        acc.withdraw(Double.MIN_VALUE); // smallest possible withdraw
+        acc.withdraw(100); // normal withdraw
+        assertEquals(100 - Double.MIN_VALUE, acc.getBalance(), 0.001); // check balance
+        acc.withdraw(100); // second withdraw
+        acc.withdraw(0); // make sure zero works
+        assertEquals(Double.MIN_VALUE, acc.getBalance(), 0.001); // check balance
+
+        // withdraw too much money
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(Double.MIN_VALUE * 2)); // just over balance
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(1)); // normal over withdraw
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(Double.MAX_VALUE)); // really big withdraw
+
+        // negative withdraw
+        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-Double.MIN_VALUE)); // small negative withdraw
+        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-1)); // normal negative withdraw
+        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-Double.MAX_VALUE)); // big negative withdraw
+        
+        // empty account
+        acc.withdraw(Double.MIN_VALUE); // empty account
+        assertEquals(0, acc.getBalance(), 0.001); // check balance
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(Double.MIN_VALUE)); // withdraw from empty account
     }
 
     // note: this doesn't cover everything in the real standard, but it's close enough
