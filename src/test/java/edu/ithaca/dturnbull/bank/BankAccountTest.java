@@ -147,4 +147,21 @@ class BankAccountTest {
         assertThrows(IllegalArgumentException.class, ()-> new BankAccount("", 100));
     }
 
+    @Test
+    void isAmountValidTest(){
+        // valid amounts
+        assertTrue(BankAccount.isAmountValid(0)); // zero
+        assertTrue(BankAccount.isAmountValid(0.01)); // smallest valid amount
+        assertTrue(BankAccount.isAmountValid(100)); // normal amount
+        assertTrue(BankAccount.isAmountValid(99999999.99)); // big amount
+
+        // invalid amounts
+        assertFalse(BankAccount.isAmountValid(-Double.MIN_VALUE)); // small negative amount
+        assertFalse(BankAccount.isAmountValid(-0.01)); // small negative amount
+        assertFalse(BankAccount.isAmountValid(-100)); // normal negative amount
+        assertFalse(BankAccount.isAmountValid(-Double.MAX_VALUE)); // big negative amount
+        assertFalse(BankAccount.isAmountValid(0.001)); // too many decimal places
+        assertFalse(BankAccount.isAmountValid(100.999)); // too many decimal places
+    }
+
 }
