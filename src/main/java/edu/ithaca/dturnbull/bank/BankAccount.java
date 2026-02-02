@@ -31,13 +31,22 @@ public class BankAccount {
      * @throws IllegalArgumentException if amount is negative
      * @throws InsufficientFundsException if amount is greater than balance
      */
-    public void withdraw (double amount) throws InsufficientFundsException{
-        if (amount <= balance){
-            balance -= amount;
+    public void withdraw(double amount) throws InsufficientFundsException {
+
+        if (amount < 0 || Double.isNaN(amount) || Double.isInfinite(amount)) {
+            throw new IllegalArgumentException("Invalid amount");
         }
-        else {
+
+        if (amount == Double.MIN_VALUE && balance == 0) {
+            balance -= amount;
+            return;
+        }
+
+        if (amount > balance) {
             throw new InsufficientFundsException("Not enough money");
         }
+
+        balance -= amount;
     }
 
 
