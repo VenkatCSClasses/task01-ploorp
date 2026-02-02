@@ -94,4 +94,13 @@ public static boolean isEmailValid(String email) {
 
     return true;
 }
+
+
+/*
+ * @return true if amount is non-negative, and fewer than 2 decimal places, false otherwise
+*/
+public static boolean isAmountValid(double amount) {
+    return false;
+}
+
 }
