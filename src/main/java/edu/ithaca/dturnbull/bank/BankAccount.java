@@ -100,7 +100,7 @@ public static boolean isEmailValid(String email) {
  * @return true if amount is non-negative, and fewer than 2 decimal places, false otherwise
 */
 public static boolean isAmountValid(double amount) {
-    return false;
+    return amount >= 0 && Math.round(amount * 100) == amount * 100;
 }
 
 }
