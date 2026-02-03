@@ -50,7 +50,10 @@ public class BankAccount {
      * @throws IllegalArgumentException if amount is negative
      */
     public void deposit(double amount) throws IllegalArgumentException {
-        
+        if(!isAmountValid(amount)) {
+            throw new IllegalArgumentException("Invalid amount: " + amount);
+        }
+        balance += amount;
     }
 
     /**
@@ -59,7 +62,16 @@ public class BankAccount {
      * @throws InsufficientFundsException if amount is greater than balance
      */
     public void transfer(BankAccount destination, double amount) throws InsufficientFundsException {
-        
+        if(!isAmountValid(amount)) {
+            throw new IllegalArgumentException("Invalid amount: " + amount);
+        }
+        if (amount <= balance){
+            this.withdraw(amount);
+            destination.deposit(amount);
+        }
+        else {
+            throw new InsufficientFundsException("Not enough money");
+        }
     }
 
 
