@@ -10,22 +10,22 @@ import org.junit.jupiter.api.Test;
 class BankAccountTest {
 
     @Test
-    void getBalanceTest() {
+    void getBalanceTest() throws InsufficientFundsException {
         BankAccount acc = new BankAccount("a@b.com", 200);
 
         // new account starting balance check
         assertEquals(200, acc.getBalance(), 0.001);
 
         // small withdraw
-        acc.withdraw(Double.MIN_VALUE);
-        assertEquals(200 - Double.MIN_VALUE, acc.getBalance(), 0.001);
+        acc.withdraw(0.01);
+        assertEquals(200 - 0.01, acc.getBalance(), 0.001);
 
         // big withdraw leaving small amount
-        acc.withdraw(200 - Double.MIN_VALUE * 2);
-        assertEquals(Double.MIN_VALUE, acc.getBalance(), 0.001);
+        acc.withdraw(200 - 0.02);
+        assertEquals(0.01, acc.getBalance(), 0.001);
 
         // empty
-        acc.withdraw(Double.MIN_VALUE);
+        acc.withdraw(0.01);
         assertEquals(0, acc.getBalance(), 0.001);
     }
 
@@ -34,27 +34,31 @@ class BankAccountTest {
         BankAccount acc = new BankAccount("a@b.com", 200);
 
         // withdraw money
-        acc.withdraw(Double.MIN_VALUE); // smallest possible withdraw
+        acc.withdraw(0.01); // smallest possible withdraw
         acc.withdraw(100); // normal withdraw
-        assertEquals(100 - Double.MIN_VALUE, acc.getBalance(), 0.001); // check balance
-        acc.withdraw(100); // second withdraw
+        assertEquals(100 - 0.01, acc.getBalance(), 0.001); // check balance
+        acc.withdraw(99.98); // second withdraw
         acc.withdraw(0); // make sure zero works
-        assertEquals(Double.MIN_VALUE, acc.getBalance(), 0.001); // check balance
+        assertEquals(0.01, acc.getBalance(), 0.001); // check balance
 
         // withdraw too much money
-        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(Double.MIN_VALUE * 2)); // just over balance
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(0.02)); // just over balance
         assertThrows(InsufficientFundsException.class, () -> acc.withdraw(1)); // normal over withdraw
-        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(Double.MAX_VALUE)); // really big withdraw
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(1000000.0)); // really big withdraw
 
         // negative withdraw
-        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-Double.MIN_VALUE)); // small negative withdraw
+        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-0.01)); // small negative withdraw
         assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-1)); // normal negative withdraw
         assertThrows(IllegalArgumentException.class, () -> acc.withdraw(-Double.MAX_VALUE)); // big negative withdraw
         
+        // more than 2 decimal places
+        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(0.001)); // too many decimal places
+        assertThrows(IllegalArgumentException.class, () -> acc.withdraw(100.999)); // too many decimal places
+
         // empty account
-        acc.withdraw(Double.MIN_VALUE); // empty account
+        acc.withdraw(0.01); // empty account
         assertEquals(0, acc.getBalance(), 0.001); // check balance
-        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(Double.MIN_VALUE)); // withdraw from empty account
+        assertThrows(InsufficientFundsException.class, () -> acc.withdraw(0.01)); // withdraw from empty account
     }
 
     // note: this doesn't cover everything in the real standard, but it's close enough
@@ -145,6 +149,7 @@ class BankAccountTest {
         assertEquals(200, bankAccount.getBalance(), 0.001);
         //check for exception thrown correctly
         assertThrows(IllegalArgumentException.class, ()-> new BankAccount("", 100));
+        assertThrows(IllegalArgumentException.class, ()-> new BankAccount("a@b.com", -50));
     }
 
     @Test
