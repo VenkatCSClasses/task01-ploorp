@@ -45,6 +45,23 @@ public class BankAccount {
         }
     }
 
+    /**
+     * @post increases the balance by amount if amount is non-negative
+     * @throws IllegalArgumentException if amount is negative
+     */
+    public void deposit(double amount) throws IllegalArgumentException {
+        
+    }
+
+    /**
+     * @post transfers amount from this account to destination account if amount is non-negative and smaller than balance
+     * @throws IllegalArgumentException if amount is negative
+     * @throws InsufficientFundsException if amount is greater than balance
+     */
+    public void transfer(BankAccount destination, double amount) throws InsufficientFundsException {
+        
+    }
+
 
 public static boolean isEmailValid(String email) {
     if (email == null || email.isEmpty()) return false;
