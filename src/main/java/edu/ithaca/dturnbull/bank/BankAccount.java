@@ -34,21 +34,15 @@ public class BankAccount {
      * @throws InsufficientFundsException if amount is greater than balance
      */
     public void withdraw(double amount) throws InsufficientFundsException {
-
-        if (amount < 0 || Double.isNaN(amount) || Double.isInfinite(amount)) {
-            throw new IllegalArgumentException("Invalid amount");
+        if (!isAmountValid(amount)) {
+            throw new IllegalArgumentException("Invalid amount: " + amount);
         }
-
-        if (amount == Double.MIN_VALUE && balance == 0) {
+        if (amount <= balance){
             balance -= amount;
-            return;
         }
-
-        if (amount > balance) {
+        else {
             throw new InsufficientFundsException("Not enough money");
         }
-
-        balance -= amount;
     }
 
 
