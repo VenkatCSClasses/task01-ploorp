@@ -61,6 +61,64 @@ class BankAccountTest {
         assertThrows(InsufficientFundsException.class, () -> acc.withdraw(0.01)); // withdraw from empty account
     }
 
+    @Test
+    void depositTest() {
+        BankAccount acc = new BankAccount("a@b.com", 200);
+
+        // deposit money
+        acc.deposit(0.01); // smallest possible deposit
+        assertEquals(200.01, acc.getBalance(), 0.001); // check balance
+        acc.deposit(100); // normal deposit
+        assertEquals(300.01, acc.getBalance(), 0.001); // check balance
+        acc.deposit(99.98); // second deposit
+        assertEquals(399.99, acc.getBalance(), 0.001); // check balance
+        acc.deposit(0); // make sure zero works
+        assertEquals(399.99, acc.getBalance(), 0.001); // check balance
+
+        // negative deposit
+        assertThrows(IllegalArgumentException.class, () -> acc.deposit(-0.01)); // small negative deposit
+        assertThrows(IllegalArgumentException.class, () -> acc.deposit(-1)); // normal negative deposit
+        assertThrows(IllegalArgumentException.class, () -> acc.deposit(-Double.MAX_VALUE)); // big negative deposit
+
+        // more than 2 decimal places
+        assertThrows(IllegalArgumentException.class, () -> acc.deposit(0.001)); // too many decimal places
+        assertThrows(IllegalArgumentException.class, () -> acc.deposit(100.999)); // too many decimal places
+    }
+
+    @Test
+    void transferTest() throws InsufficientFundsException {
+        BankAccount acc1 = new BankAccount("a@b.com", 200);
+        BankAccount acc2 = new BankAccount("c@d.com", 200);
+
+        // transfer money
+        acc1.transfer(acc2, 0.01); // smallest possible transfer
+        assertEquals(199.99, acc1.getBalance(), 0.001); // check source balance
+        assertEquals(200.01, acc2.getBalance(), 0.001); // check destination balance
+        acc1.transfer(acc2, 100); // normal transfer
+        assertEquals(99.99, acc1.getBalance(), 0.001); // check source balance
+        assertEquals(300.01, acc2.getBalance(), 0.001); // check destination balance
+        acc1.transfer(acc2, 99.98); // second transfer
+        assertEquals(0.01, acc1.getBalance(), 0.001); // check source balance
+        assertEquals(399.99, acc2.getBalance(), 0.001); // check destination balance
+        acc1.transfer(acc2, 0); // make sure zero works
+        assertEquals(0.01, acc1.getBalance(), 0.001); // check source balance
+        assertEquals(399.99, acc2.getBalance(), 0.001); // check destination balance
+
+        // transfer too much money
+        assertThrows(InsufficientFundsException.class, () -> acc1.transfer(acc2, 0.02)); // just over balance
+        assertThrows(InsufficientFundsException.class, () -> acc1.transfer(acc2, 1)); // normal over transfer
+        assertThrows(InsufficientFundsException.class, () -> acc1.transfer(acc2, 1000000.0)); // really big transfer
+
+        // negative transfer
+        assertThrows(IllegalArgumentException.class, () -> acc1.transfer(acc2, -0.01)); // small negative transfer
+        assertThrows(IllegalArgumentException.class, () -> acc1.transfer(acc2, -1)); // normal negative transfer
+        assertThrows(IllegalArgumentException.class, () -> acc1.transfer(acc2, -Double.MAX_VALUE)); // big negative transfer
+
+        // more than 2 decimal places
+        assertThrows(IllegalArgumentException.class, () -> acc1.transfer(acc2, 0.001)); // too many decimal places
+        assertThrows(IllegalArgumentException.class, () -> acc1.transfer(acc2, 100.999)); // too many decimal places
+    }
+
     // note: this doesn't cover everything in the real standard, but it's close enough
     @Test
     void isEmailValidTest(){
