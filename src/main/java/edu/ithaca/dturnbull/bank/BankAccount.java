@@ -6,16 +6,18 @@ public class BankAccount {
     private double balance;
 
     /**
-     * @throws IllegalArgumentException if email is invalid
+     * @throws IllegalArgumentException if email is invalid or startingBalance is invalid
      */
     public BankAccount(String email, double startingBalance){
-        if (isEmailValid(email)){
-            this.email = email;
-            this.balance = startingBalance;
+        if (!isAmountValid(startingBalance)) {
+            throw new IllegalArgumentException("Invalid starting balance: " + startingBalance);
         }
-        else {
+        if (!isEmailValid(email)){
             throw new IllegalArgumentException("Email address: " + email + " is invalid, cannot create account");
         }
+        
+        this.email = email;
+        this.balance = startingBalance;
     }
 
     public double getBalance(){
@@ -103,4 +105,13 @@ public static boolean isEmailValid(String email) {
 
     return true;
 }
+
+
+/*
+ * @return true if amount is non-negative, and fewer than 2 decimal places, false otherwise
+*/
+public static boolean isAmountValid(double amount) {
+    return amount >= 0 && Math.round(amount * 100) == amount * 100;
+}
+
 }
